@@ -1,4 +1,7 @@
 {
   "name": "portfolio",
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "devDependencies": {
+    "vite": "^5.4.8"
+  }
 }
