@@ -59,4 +59,4 @@ yarn deploy --dry-run   # show what would be uploaded or deleted
 yarn deploy
 ```
 
-The script refuses to deploy to `/` or a home directory. It also leaves `.well-known/` and `.htaccess` on the server untouched.
+The script refuses to deploy to `/` or a home directory. Paths listed in `KEEP_ON_SERVER` in `scripts/deploy.sh` are never touched by `--delete`. That list covers `.well-known/`, `.htaccess`, and older projects that still live on the domain.

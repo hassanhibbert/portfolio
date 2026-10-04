@@ -60,7 +60,21 @@ fi
 echo "Building..."
 (cd "$PROJECT_ROOT" && yarn build)
 
-RSYNC_FLAGS=(-avz --delete --exclude .well-known --exclude .htaccess)
+# Paths in DEPLOY_PATH that aren't part of this site but must stay on the
+# server. rsync --delete never removes excluded paths. A leading "/" anchors
+# the pattern to the top of DEPLOY_PATH.
+KEEP_ON_SERVER=(
+  /.well-known   # DreamHost / SSL certificate files
+  /.htaccess     # server config and redirects
+  /trainer
+  /calc-tip
+  /gas-tank
+)
+
+RSYNC_FLAGS=(-avz --delete)
+for keep in "${KEEP_ON_SERVER[@]}"; do
+  RSYNC_FLAGS+=(--exclude "$keep")
+done
 if [ "$DRY_RUN" = true ]; then
   RSYNC_FLAGS+=(--dry-run --itemize-changes)
   echo "Dry run: nothing will be uploaded or deleted. Lines starting with '*deleting' would be removed."
