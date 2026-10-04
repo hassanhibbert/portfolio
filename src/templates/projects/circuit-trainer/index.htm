@@ -1,0 +1,36 @@
+<article class="card">
+  <div class="card-head">
+    <h3>Circuit Trainer</h3>
+    <div class="links">
+      <!-- TODO: restore once the repo is pushed
+      <a href="https://github.com/hassanhibbert/circuit-trainer" target="_blank" rel="noopener">Code ↗</a>
+      -->
+      <a href="https://trainer.hassanhibbert.com" target="_blank" rel="noopener">Demo ↗</a>
+    </div>
+  </div>
+  <p>
+    A workout app I built for my own training: guided circuit timers, a
+    12-week kettlebell program, set logging and goals. It works offline and
+    syncs when you're back online.
+  </p>
+  <ul class="notes">
+    <li>
+      Every query is scoped to its owner, so asking for someone else's data
+      gets a 404, not their data.
+    </li>
+    <li>Offline sync is idempotent: a workout that uploads twice is saved once.</li>
+    <li>
+      54 tests across unit, web and database layers. Database tests run
+      against a throwaway Postgres container (Testcontainers), not an
+      in-memory fake.
+    </li>
+  </ul>
+  <ul class="tags">
+    <li>Java 21</li>
+    <li>Spring Boot</li>
+    <li>PostgreSQL</li>
+    <li>Flyway</li>
+    <li>React</li>
+    <li>Docker</li>
+  </ul>
+</article>

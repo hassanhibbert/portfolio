@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hassan Hibbert · Software Developer</title>
+    <meta
+      name="description"
+      content="Hassan Hibbert is a software developer with over a decade building for the web, from React and React Native frontends to Java and Spring Boot backends."
+    />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.hassanhibbert.com/" />
+    <meta property="og:title" content="Hassan Hibbert · Software Developer" />
+    <meta
+      property="og:description"
+      content="Software developer with over a decade building for the web, from React and React Native frontends to Java and Spring Boot backends."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div class="layout">
+      <load src="templates/layout/sidebar.htm" />
+
+      <main>
+        <load src="templates/content/intro.htm" />
+
+        <section id="projects">
+          <p class="label">Projects</p>
+          <load src="templates/projects/circuit-trainer/" />
+          <load src="templates/projects/coffee-tracker/" />
+          <load src="templates/projects/plantbox/" />
+        </section>
+
+        <load src="templates/content/about.htm" />
+        <load src="templates/content/contact.htm" />
+
+        <footer>
+          &copy; <span id="copy-year"></span> Hassan Hibbert
+        </footer>
+      </main>
+    </div>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
