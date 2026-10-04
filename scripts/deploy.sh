@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# Builds the site and rsyncs dist/ to DreamHost over SSH.
+#
+# Connection details come from environment variables only:
+#   DEPLOY_USER, DEPLOY_HOST, DEPLOY_PATH
+# They can be exported in your shell (or set in CI), or put in
+# .env.deploy.local (gitignored). Variables already set in the environment
+# win over the file. Values are never printed.
+#
+# Usage: yarn deploy [--dry-run]
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ENV_FILE="$PROJECT_ROOT/.env.deploy.local"
+
+DRY_RUN=false
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=true ;;
+    *)
+      echo "Unknown option: $arg (usage: yarn deploy [--dry-run])" >&2
+      exit 1
+      ;;
+  esac
+done
+
+# Load KEY=VALUE lines from the env file without overriding anything already
+# set. Parsed line by line instead of `source`, so the file can't run code.
+if [ -f "$ENV_FILE" ]; then
+  while IFS='=' read -r key value || [ -n "$key" ]; do
+    key="${key//[[:space:]]/}"
+    [[ -z "$key" || "$key" == \#* ]] && continue
+    [[ "$key" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || continue
+    if [ -z "${!key+x}" ]; then
+      value="${value%\"}"; value="${value#\"}"
+      value="${value%\'}"; value="${value#\'}"
+      export "$key=$value"
+    fi
+  done < "$ENV_FILE"
+fi
+
+missing=()
+for var in DEPLOY_USER DEPLOY_HOST DEPLOY_PATH; do
+  [ -n "${!var:-}" ] || missing+=("$var")
+done
+if [ ${#missing[@]} -gt 0 ]; then
+  echo "Missing: ${missing[*]}" >&2
+  echo "Export them, or copy .env.deploy.local.example to .env.deploy.local and fill it in." >&2
+  exit 1
+fi
+
+# --delete mirrors dist/ exactly, so refuse paths that clearly aren't a
+# site folder (filesystem root or a home directory).
+if [[ "$DEPLOY_PATH" =~ ^(/|~|/home/[^/]+|~/)/?$ ]]; then
+  echo "DEPLOY_PATH must be the site's own folder, not / or a home directory." >&2
+  exit 1
+fi
+
+echo "Building..."
+(cd "$PROJECT_ROOT" && yarn build)
+
+RSYNC_FLAGS=(-avz --delete --exclude .well-known --exclude .htaccess)
+if [ "$DRY_RUN" = true ]; then
+  RSYNC_FLAGS+=(--dry-run --itemize-changes)
+  echo "Dry run: nothing will be uploaded or deleted. Lines starting with '*deleting' would be removed."
+fi
+
+# BatchMode makes SSH fail instead of prompting for a password: key auth only.
+echo "Uploading dist/ to DEPLOY_HOST:DEPLOY_PATH ..."
+rsync "${RSYNC_FLAGS[@]}" \
+  -e "ssh -o BatchMode=yes" \
+  "$PROJECT_ROOT/dist/" \
+  "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+
+if [ "$DRY_RUN" = true ]; then
+  echo "Dry run complete."
+else
+  echo "Deploy complete."
+fi
