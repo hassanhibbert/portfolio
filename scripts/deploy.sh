@@ -66,12 +66,25 @@ if [ "$DRY_RUN" = true ]; then
   echo "Dry run: nothing will be uploaded or deleted. Lines starting with '*deleting' would be removed."
 fi
 
+# rsync and ssh echo the user, host and path in their own messages (e.g.
+# "user@host: Permission denied"). Mask them so values never reach the terminal.
+# Literal string replacement, so dots and slashes in the values are safe.
+redact() {
+  local line
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line//"$DEPLOY_PATH"/DEPLOY_PATH}"
+    line="${line//"$DEPLOY_HOST"/DEPLOY_HOST}"
+    line="${line//"$DEPLOY_USER"/DEPLOY_USER}"
+    printf '%s\n' "$line"
+  done
+}
+
 # BatchMode makes SSH fail instead of prompting for a password: key auth only.
 echo "Uploading dist/ to DEPLOY_HOST:DEPLOY_PATH ..."
 rsync "${RSYNC_FLAGS[@]}" \
   -e "ssh -o BatchMode=yes" \
   "$PROJECT_ROOT/dist/" \
-  "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+  "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/" 2>&1 | redact
 
 if [ "$DRY_RUN" = true ]; then
   echo "Dry run complete."
