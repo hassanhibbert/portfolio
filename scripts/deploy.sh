@@ -66,6 +66,7 @@ echo "Building..."
 KEEP_ON_SERVER=(
   /.well-known   # DreamHost / SSL certificate files
   /.htaccess     # server config and redirects
+  /.dh-diag      # DreamHost diagnostics link, recreated by DreamHost
   /trainer
   /calc-tip
   /gas-tank
